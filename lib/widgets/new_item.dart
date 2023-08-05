@@ -1,5 +1,9 @@
+// ignore_for_file: no_leading_underscores_for_local_identifiers
+
 import 'package:flutter/material.dart';
 import 'package:shopping_list/data/categories.dart';
+import 'package:shopping_list/models/category.dart';
+import 'package:shopping_list/models/grocery_item.dart';
 
 class NewItem extends StatefulWidget {
   const NewItem({super.key});
@@ -13,17 +17,27 @@ class _NewItemState extends State<NewItem> {
   Widget build(BuildContext context) {
     final _formKey = GlobalKey<FormState>();
     var _enteredName = '';
+    var _enteredQuantity = 1;
+    var _selectedCategory = categories[Categories.vegetables]!;
 
     void _saveItem() {
       if (_formKey.currentState!.validate()) {
+        print(_selectedCategory);
         _formKey.currentState!.save();
-        print(_enteredName);
+        Navigator.of(context).pop(
+          GroceryItem(
+            id: DateTime.now().toString(),
+            name: _enteredName,
+            quantity: _enteredQuantity,
+            category: _selectedCategory,
+          ),
+        );
       }
     }
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("newItem"),
+        title: const Text("Add a new item"),
       ),
       body: Padding(
         padding: const EdgeInsets.all(12),
@@ -58,43 +72,50 @@ class _NewItemState extends State<NewItem> {
                         label: Text("Quantity"),
                       ),
                       keyboardType: TextInputType.number,
-                      initialValue: '1',
+                      initialValue: _enteredQuantity.toString(),
                       validator: (value) {
                         if (value == null ||
                             value.isEmpty ||
                             int.tryParse(value) == null ||
                             int.tryParse(value)! <= 0) {
-                          return 'Must be valid positive number.';
+                          return 'Must be valid, positive number.';
                         }
                         return null;
+                      },
+                      onSaved: (value) {
+                        _enteredQuantity = int.parse(value!);
                       },
                     ),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: DropdownButtonFormField(items: [
-                      for (final category in categories.entries)
-                        DropdownMenuItem(
-                          value: category.value,
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 16,
-                                height: 16,
-                                color: category.value.color,
-                              ),
-                              const SizedBox(width: 6),
-                              Text(category.value.title)
-                            ],
+                    child: DropdownButtonFormField(
+                      value: _selectedCategory,
+                      items: [
+                        for (final category in categories.entries)
+                          DropdownMenuItem(
+                            value: category.value,
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 16,
+                                  height: 16,
+                                  color: category.value.color,
+                                ),
+                                const SizedBox(width: 6),
+                                Text(category.value.title)
+                              ],
+                            ),
                           ),
-                        ),
-                    ], onChanged: (value) {}),
+                      ],
+                      onChanged: (value) {
+                        _selectedCategory = value!;
+                      },
+                    ),
                   ),
                 ],
               ),
-              const SizedBox(
-                height: 12,
-              ),
+              const SizedBox(height: 12),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
