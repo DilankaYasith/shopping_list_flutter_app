@@ -22,7 +22,6 @@ class _NewItemState extends State<NewItem> {
 
     void _saveItem() {
       if (_formKey.currentState!.validate()) {
-        print(_selectedCategory);
         _formKey.currentState!.save();
         Navigator.of(context).pop(
           GroceryItem(
